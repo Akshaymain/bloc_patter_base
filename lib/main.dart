@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
+import 'package:bloc_pattern_base/blocs/theme/theme_bloc.dart';
 import 'package:bloc_pattern_base/other_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -9,19 +12,21 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
-
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<CounterBloc>(
-      create: (context) => CounterBloc(),
-      child: MaterialApp(
-        title: 'MyCounter Bloc',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
-          useMaterial3: true,
-        ),
-        home: const MyHomePage(),
+    return BlocProvider(
+      create: (context) => ThemeBloc(),
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Event Payload',
+            debugShowCheckedModeBanner: false,
+            theme: state.appTheme == AppTheme.light
+                ? ThemeData.light()
+                : ThemeData.dark(),
+            home: const MyHomePage(),
+          );
+        },
       ),
     );
   }
@@ -33,53 +38,101 @@ class MyHomePage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: BlocListener<CounterBloc, CounterState>(
-        listener: (context, state) {
-          if (state.counter == 3) {
-            showDialog(
-                context: context,
-                builder: (context) {
-                  return AlertDialog(
-                    content: Text('Counter is ${state.counter}'),
-                  );
-                });
-          } else if (state.counter == -1) {
-            Navigator.push(context,
-                MaterialPageRoute(builder: (context) => const OtherPage()));
-          }
-        },
-        child: Center(
-          child: Text(
-            '${context.watch<CounterBloc>().state.counter}',
-            style: const TextStyle(fontSize: 52.0),
-          ),
-        ),
+      appBar: AppBar(
+        title: const Text('Theme'),
       ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            heroTag: "increment",
+      body: Center(
+        child: ElevatedButton(
             onPressed: () {
-              BlocProvider.of<CounterBloc>(context).add(IncrementEvent());
+              final int randInt = Random().nextInt(10);
+              debugPrint('randInt = $randInt');
+              context
+                  .read<ThemeBloc>()
+                  .add(ChangedThemeEvent(randInt: randInt));
             },
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(
-            width: 10.0,
-          ),
-          FloatingActionButton(
-            heroTag: "decrement",
-            onPressed: () {
-              context.read<CounterBloc>().add(DecrementEvent());
-            },
-            child: const Icon(Icons.remove),
-          )
-        ],
+            child: const Text(
+              'Change Theme',
+              style: TextStyle(fontSize: 24.0),
+            )),
       ),
     );
   }
 }
+
+//////-- Bloc implementation --//////
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider<CounterBloc>(
+//       create: (context) => CounterBloc(),
+//       child: MaterialApp(
+//         title: 'MyCounter Bloc',
+//         debugShowCheckedModeBanner: false,
+//         theme: ThemeData(
+//           colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+//           useMaterial3: true,
+//         ),
+//         home: const MyHomePage(),
+//       ),
+//     );
+//   }
+// }
+
+// class MyHomePage extends StatelessWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: BlocListener<CounterBloc, CounterState>(
+//         listener: (context, state) {
+//           if (state.counter == 3) {
+//             showDialog(
+//                 context: context,
+//                 builder: (context) {
+//                   return AlertDialog(
+//                     content: Text('Counter is ${state.counter}'),
+//                   );
+//                 });
+//           } else if (state.counter == -1) {
+//             Navigator.push(context,
+//                 MaterialPageRoute(builder: (context) => const OtherPage()));
+//           }
+//         },
+//         child: Center(
+//           child: Text(
+//             '${context.watch<CounterBloc>().state.counter}',
+//             style: const TextStyle(fontSize: 52.0),
+//           ),
+//         ),
+//       ),
+//       floatingActionButton: Row(
+//         mainAxisAlignment: MainAxisAlignment.end,
+//         children: [
+//           FloatingActionButton(
+//             heroTag: "increment",
+//             onPressed: () {
+//               BlocProvider.of<CounterBloc>(context).add(IncrementEvent());
+//             },
+//             child: const Icon(Icons.add),
+//           ),
+//           const SizedBox(
+//             width: 10.0,
+//           ),
+//           FloatingActionButton(
+//             heroTag: "decrement",
+//             onPressed: () {
+//               context.read<CounterBloc>().add(DecrementEvent());
+//             },
+//             child: const Icon(Icons.remove),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
 
 
 //////-- Cubit implementation --//////
