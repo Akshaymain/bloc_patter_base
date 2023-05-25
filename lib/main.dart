@@ -1,6 +1,8 @@
 import 'dart:math';
 
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
+import 'package:bloc_pattern_base/cubits/color/color_cubit.dart';
+import 'package:bloc_pattern_base/cubits/counter/counter_cubit.dart';
 import 'package:bloc_pattern_base/cubits/theme/theme_cubit.dart';
 import 'package:bloc_pattern_base/other_page.dart';
 import 'package:flutter/material.dart';
@@ -12,25 +14,113 @@ void main() {
 
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
+
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ThemeCubit(),
-      child: BlocBuilder<ThemeCubit, ThemeState>(
-        builder: (context, state) {
-          return MaterialApp(
-            title: 'Event Payload',
-            debugShowCheckedModeBanner: false,
-            theme: state.appTheme == AppTheme.light
-                ? ThemeData.light()
-                : ThemeData.dark(),
-            home: const MyHomePage(),
-          );
-        },
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ColorCubit()),
+        BlocProvider(
+            create: (context) =>
+                CounterCubit(colorCubit: context.read<ColorCubit>())),
+      ],
+      child: MaterialApp(
+        title: 'Cubit to Cubit',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const MyHomePage(),
       ),
     );
   }
 }
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.watch<ColorCubit>().state.color,
+      appBar: AppBar(title: const Text('Cubit2Cbuit')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  context.read<ColorCubit>().changeColor();
+                },
+                child: const Text(
+                  'Change color',
+                  style: TextStyle(fontSize: 24.0),
+                )),
+            const SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              '${context.watch<CounterCubit>().state.counter}',
+              style: const TextStyle(
+                  fontSize: 52.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  context.read<CounterCubit>().changeCounter();
+                },
+                child: const Text(
+                  'Increment Counter',
+                  style: TextStyle(fontSize: 24.0),
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// -- Theme feature using bloc and cubit --//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider(
+//       create: (context) => ThemeCubit(),
+//       child: BlocBuilder<ThemeCubit, ThemeState>(
+//         builder: (context, state) {
+//           return MaterialApp(
+//             title: 'Event Payload',
+//             debugShowCheckedModeBanner: false,
+//             theme: state.appTheme == AppTheme.light
+//                 ? ThemeData.light()
+//                 : ThemeData.dark(),
+//             home: const MyHomePage(),
+//           );
+//         },
+//       ),
+//     );
+//   }
+// }
 
 //Extension function implementation//
 // class MyApp extends StatelessWidget {
@@ -74,33 +164,33 @@ class MyApp extends StatelessWidget {
 //   }
 // }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+// class MyHomePage extends StatelessWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Theme'),
-      ),
-      body: Center(
-        child: ElevatedButton(
-            onPressed: () {
-              final int randInt = Random().nextInt(10);
-              debugPrint('randInt = $randInt');
-              context.read<ThemeCubit>().changeTheme(randInt);
-              // context
-              //     .read<ThemeBloc>()
-              //     .add(ChangedThemeEvent(randInt: randInt));
-            },
-            child: const Text(
-              'Change Theme',
-              style: TextStyle(fontSize: 24.0),
-            )),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       appBar: AppBar(
+//         title: const Text('Theme'),
+//       ),
+//       body: Center(
+//         child: ElevatedButton(
+//             onPressed: () {
+//               final int randInt = Random().nextInt(10);
+//               debugPrint('randInt = $randInt');
+//               context.read<ThemeCubit>().changeTheme(randInt);
+//               // context
+//               //     .read<ThemeBloc>()
+//               //     .add(ChangedThemeEvent(randInt: randInt));
+//             },
+//             child: const Text(
+//               'Change Theme',
+//               style: TextStyle(fontSize: 24.0),
+//             )),
+//       ),
+//     );
+//   }
+// }
 
 //////-- Bloc implementation --//////
 // class MyApp extends StatelessWidget {
