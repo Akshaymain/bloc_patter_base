@@ -1,7 +1,7 @@
 import 'dart:math';
 
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
-import 'package:bloc_pattern_base/blocs/theme/theme_bloc.dart';
+import 'package:bloc_pattern_base/cubits/theme/theme_cubit.dart';
 import 'package:bloc_pattern_base/other_page.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -15,20 +15,43 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => ThemeBloc(),
-      child: Builder(builder: (context) {
-        return MaterialApp(
-          title: 'Event Payload',
-          debugShowCheckedModeBanner: false,
-          theme: context.watch<ThemeBloc>().state.appTheme == AppTheme.light
-              ? ThemeData.light()
-              : ThemeData.dark(),
-          home: const MyHomePage(),
-        );
-      }),
+      create: (context) => ThemeCubit(),
+      child: BlocBuilder<ThemeCubit, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Event Payload',
+            debugShowCheckedModeBanner: false,
+            theme: state.appTheme == AppTheme.light
+                ? ThemeData.light()
+                : ThemeData.dark(),
+            home: const MyHomePage(),
+          );
+        },
+      ),
     );
   }
 }
+
+//Extension function implementation//
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider(
+//       create: (context) => ThemeBloc(),
+//       child: Builder(builder: (context) {
+//         return MaterialApp(
+//           title: 'Event Payload',
+//           debugShowCheckedModeBanner: false,
+//           theme: context.watch<ThemeBloc>().state.appTheme == AppTheme.light
+//               ? ThemeData.light()
+//               : ThemeData.dark(),
+//           home: const MyHomePage(),
+//         );
+//       }),
+//     );
+//   }
+// }
 // class MyApp extends StatelessWidget {
 //   const MyApp({super.key});
 //   @override
@@ -65,9 +88,10 @@ class MyHomePage extends StatelessWidget {
             onPressed: () {
               final int randInt = Random().nextInt(10);
               debugPrint('randInt = $randInt');
-              context
-                  .read<ThemeBloc>()
-                  .add(ChangedThemeEvent(randInt: randInt));
+              context.read<ThemeCubit>().changeTheme(randInt);
+              // context
+              //     .read<ThemeBloc>()
+              //     .add(ChangedThemeEvent(randInt: randInt));
             },
             child: const Text(
               'Change Theme',
