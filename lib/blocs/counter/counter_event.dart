@@ -7,6 +7,13 @@ abstract class CounterEvent extends Equatable {
   List<Object> get props => [];
 }
 
-class IncrementEvent extends CounterEvent {}
+class ChangedCounterEvent extends CounterEvent {
+  final int incrementSize;
+  const ChangedCounterEvent({required this.incrementSize});
 
-class DecrementEvent extends CounterEvent {}
+  @override
+  List<Object> get props => [incrementSize];
+}
+// class IncrementEvent extends CounterEvent {}
+
+// class DecrementEvent extends CounterEvent {}

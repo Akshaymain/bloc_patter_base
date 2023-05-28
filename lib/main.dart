@@ -1,8 +1,7 @@
 import 'dart:math';
 
+import 'package:bloc_pattern_base/blocs/color/color_bloc.dart';
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
-import 'package:bloc_pattern_base/cubits/color/color_cubit.dart';
-import 'package:bloc_pattern_base/cubits/counter/counter_cubit.dart';
 import 'package:bloc_pattern_base/cubits/theme/theme_cubit.dart';
 import 'package:bloc_pattern_base/other_page.dart';
 import 'package:flutter/material.dart';
@@ -19,8 +18,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiBlocProvider(
       providers: [
-        BlocProvider(create: (context) => ColorCubit()),
-        BlocProvider(create: (context) => CounterCubit()),
+        BlocProvider(create: (context) => ColorBloc()),
+        BlocProvider(create: (context) => CounterBloc()),
       ],
       child: MaterialApp(
         title: 'Cubit to Cubit',
@@ -43,7 +42,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int incrementSize = 1;
   @override
   Widget build(BuildContext context) {
-    return BlocListener<ColorCubit, ColorState>(
+    return BlocListener<ColorBloc, ColorState>(
       listener: (context, state) {
         if (state.color == Colors.red) {
           incrementSize = 1;
@@ -52,12 +51,14 @@ class _MyHomePageState extends State<MyHomePage> {
         } else if (state.color == Colors.blue) {
           incrementSize = 100;
         } else if (state.color == Colors.black) {
-          context.read<CounterCubit>().changeCounter(incrementSize: -100);
           incrementSize = -100;
+          context
+              .read<CounterBloc>()
+              .add(ChangedCounterEvent(incrementSize: incrementSize));
         }
       },
       child: Scaffold(
-        backgroundColor: context.watch<ColorCubit>().state.color,
+        backgroundColor: context.watch<ColorBloc>().state.color,
         appBar: AppBar(title: const Text('Cubit2Cbuit')),
         body: Center(
           child: Column(
@@ -65,7 +66,7 @@ class _MyHomePageState extends State<MyHomePage> {
             children: [
               ElevatedButton(
                   onPressed: () {
-                    context.read<ColorCubit>().changeColor();
+                    context.read<ColorBloc>().add(ChangedColorEvent());
                   },
                   child: const Text(
                     'Change color',
@@ -75,7 +76,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 height: 20.0,
               ),
               Text(
-                '${context.watch<CounterCubit>().state.counter}',
+                '${context.watch<CounterBloc>().state.counter}',
                 style: const TextStyle(
                     fontSize: 52.0,
                     fontWeight: FontWeight.bold,
@@ -84,8 +85,8 @@ class _MyHomePageState extends State<MyHomePage> {
               ElevatedButton(
                   onPressed: () {
                     context
-                        .read<CounterCubit>()
-                        .changeCounter(incrementSize: incrementSize);
+                        .read<CounterBloc>()
+                        .add(ChangedCounterEvent(incrementSize: incrementSize));
                   },
                   child: const Text(
                     'Increment Counter',
@@ -98,6 +99,113 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 }
+
+
+/// -- Bloc to bloc using stream subscription --///
+// class _MyHomePageState extends State<MyHomePage> {
+//   int incrementSize = 1;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: context.watch<ColorBloc>().state.color,
+//       appBar: AppBar(title: const Text('Cubit2Cbuit')),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             ElevatedButton(
+//                 onPressed: () {
+//                   context.read<ColorBloc>().add(ChangedColorEvent());
+//                 },
+//                 child: const Text(
+//                   'Change color',
+//                   style: TextStyle(fontSize: 24.0),
+//                 )),
+//             const SizedBox(
+//               height: 20.0,
+//             ),
+//             Text(
+//               '${context.watch<CounterBloc>().state.counter}',
+//               style: const TextStyle(
+//                   fontSize: 52.0,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.white),
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   context.read<CounterBloc>().add(ChangedCounterEvent());
+//                 },
+//                 child: const Text(
+//                   'Increment Counter',
+//                   style: TextStyle(fontSize: 24.0),
+//                 ))
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
+
+///--Cubit to Cubit--//
+// class _MyHomePageState extends State<MyHomePage> {
+//   int incrementSize = 1;
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocListener<ColorCubit, ColorState>(
+//       listener: (context, state) {
+//         if (state.color == Colors.red) {
+//           incrementSize = 1;
+//         } else if (state.color == Colors.green) {
+//           incrementSize = 10;
+//         } else if (state.color == Colors.blue) {
+//           incrementSize = 100;
+//         } else if (state.color == Colors.black) {
+//           context.read<CounterCubit>().changeCounter(incrementSize: -100);
+//           incrementSize = -100;
+//         }
+//       },
+//       child: Scaffold(
+//         backgroundColor: context.watch<ColorCubit>().state.color,
+//         appBar: AppBar(title: const Text('Cubit2Cbuit')),
+//         body: Center(
+//           child: Column(
+//             mainAxisAlignment: MainAxisAlignment.center,
+//             children: [
+//               ElevatedButton(
+//                   onPressed: () {
+//                     context.read<ColorCubit>().changeColor();
+//                   },
+//                   child: const Text(
+//                     'Change color',
+//                     style: TextStyle(fontSize: 24.0),
+//                   )),
+//               const SizedBox(
+//                 height: 20.0,
+//               ),
+//               Text(
+//                 '${context.watch<CounterCubit>().state.counter}',
+//                 style: const TextStyle(
+//                     fontSize: 52.0,
+//                     fontWeight: FontWeight.bold,
+//                     color: Colors.white),
+//               ),
+//               ElevatedButton(
+//                   onPressed: () {
+//                     context
+//                         .read<CounterCubit>()
+//                         .changeCounter(incrementSize: incrementSize);
+//                   },
+//                   child: const Text(
+//                     'Increment Counter',
+//                     style: TextStyle(fontSize: 24.0),
+//                   ))
+//             ],
+//           ),
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 
 
