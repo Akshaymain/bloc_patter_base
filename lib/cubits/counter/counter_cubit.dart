@@ -1,7 +1,3 @@
-import 'dart:async';
-
-import 'package:bloc_pattern_base/cubits/color/color_cubit.dart';
-import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:equatable/equatable.dart';
 
@@ -9,9 +5,15 @@ part 'counter_state.dart';
 
 class CounterCubit extends Cubit<CounterState> {
   CounterCubit() : super(CounterState.inital());
-  void changeCounter({required int incrementSize}) {
-    emit(CounterState(counter: state.counter + incrementSize));
+  void incrementCounter() {
+    emit(CounterState(counter: state.counter + 1));
   }
+
+  ///-- Bloc to bloc communication using stream subscription and bloc listener --///
+
+  // void changeCounter({required int incrementSize}) {
+  //   emit(CounterState(counter: state.counter + incrementSize));
+  // }
 
   /// --- Cubit to cubit communication using stream subscription -- ///
   // int incrementSize = 1;
