@@ -1,113 +1,118 @@
+import 'package:bloc_pattern_base/blocs/color/color_bloc.dart';
+import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
+import 'package:bloc_pattern_base/blocs/observer/app_bloc_observer.dart';
 import 'package:bloc_pattern_base/cubits/counter/counter_cubit.dart';
 import 'package:bloc_pattern_base/show_me_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
+  Bloc.observer = AppBlocObserver();
   runApp(const MyApp());
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({super.key});
+/// -- Bloc Access - Anonymous,Named and Generated routes --///
 
-  @override
-  State<MyApp> createState() => _MyAppState();
-}
+// class MyApp extends StatefulWidget {
+//   const MyApp({super.key});
 
-class _MyAppState extends State<MyApp> {
-  final CounterCubit counterCubit = CounterCubit();
+//   @override
+//   State<MyApp> createState() => _MyAppState();
+// }
+// class _MyAppState extends State<MyApp> {
+//   final CounterCubit counterCubit = CounterCubit();
 
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Bloc Access',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(primarySwatch: Colors.blue),
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       title: 'Bloc Access',
+//       debugShowCheckedModeBanner: false,
+//       theme: ThemeData(primarySwatch: Colors.blue),
 
-      ///-- Named Route Access --///
-      // routes: {
-      //   '/': (context) => BlocProvider.value(
-      //         value: counterCubit,
-      //         child: const MyHomePage(),
-      //       ),
-      //   '/counter': (context) => BlocProvider.value(
-      //         value: counterCubit,
-      //         child: const ShowMeCounter(),
-      //       )
-      // },
-      onGenerateRoute: (settings) {
-        switch (settings.name) {
-          case '/':
-            return MaterialPageRoute(
-                builder: ((context) => BlocProvider.value(
-                      value: counterCubit,
-                      child: const MyHomePage(),
-                    )));
-          case '/counter':
-            return MaterialPageRoute(
-                builder: ((context) => BlocProvider.value(
-                      value: counterCubit,
-                      child: const ShowMeCounter(),
-                    )));
-          default:
-            return null;
-        }
-      },
+//       ///-- Named Route Access --///
+//       // routes: {
+//       //   '/': (context) => BlocProvider.value(
+//       //         value: counterCubit,
+//       //         child: const MyHomePage(),
+//       //       ),
+//       //   '/counter': (context) => BlocProvider.value(
+//       //         value: counterCubit,
+//       //         child: const ShowMeCounter(),
+//       //       )
+//       // },
+//       onGenerateRoute: (settings) {
+//         switch (settings.name) {
+//           case '/':
+//             return MaterialPageRoute(
+//                 builder: ((context) => BlocProvider.value(
+//                       value: counterCubit,
+//                       child: const MyHomePage(),
+//                     )));
+//           case '/counter':
+//             return MaterialPageRoute(
+//                 builder: ((context) => BlocProvider.value(
+//                       value: counterCubit,
+//                       child: const ShowMeCounter(),
+//                     )));
+//           default:
+//             return null;
+//         }
+//       },
 
-      /// -- Anonymous routes -- ///
-      // home: BlocProvider<CounterCubit>(
-      //   create: (context) => CounterCubit(),
-      //   child: const MyHomePage(),
-      // ),
-    );
-  }
+//       /// -- Anonymous routes -- ///
+//       // home: BlocProvider<CounterCubit>(
+//       //   create: (context) => CounterCubit(),
+//       //   child: const MyHomePage(),
+//       // ),
+//     );
+//   }
 
-  @override
-  void dispose() {
-    counterCubit.close();
-    super.dispose();
-  }
-}
+//   @override
+//   void dispose() {
+//     counterCubit.close();
+//     super.dispose();
+//   }
+// }
 
-class MyHomePage extends StatelessWidget {
-  const MyHomePage({Key? key}) : super(key: key);
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, '/counter');
+// class MyHomePage extends StatelessWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             ElevatedButton(
+//                 onPressed: () {
+//                   Navigator.pushNamed(context, '/counter');
 
-                  /// -- Anonymous route -- ///
-                  // Navigator.push(context, MaterialPageRoute(builder: (_) {
-                  //   return BlocProvider.value(
-                  //     value: context.read<CounterCubit>(),
-                  //     child: const ShowMeCounter(),
-                  //   );
-                  // }));
-                },
-                child: const Text(
-                  'Show Me Counter',
-                  style: TextStyle(fontSize: 20.0),
-                )),
-            ElevatedButton(
-                onPressed: () {
-                  BlocProvider.of<CounterCubit>(context).incrementCounter();
-                },
-                child: const Text(
-                  'Increment Counter',
-                  style: TextStyle(fontSize: 20.0),
-                ))
-          ],
-        ),
-      ),
-    );
-  }
-}
+//                   /// -- Anonymous route -- ///
+//                   // Navigator.push(context, MaterialPageRoute(builder: (_) {
+//                   //   return BlocProvider.value(
+//                   //     value: context.read<CounterCubit>(),
+//                   //     child: const ShowMeCounter(),
+//                   //   );
+//                   // }));
+//                 },
+//                 child: const Text(
+//                   'Show Me Counter',
+//                   style: TextStyle(fontSize: 20.0),
+//                 )),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   BlocProvider.of<CounterCubit>(context).incrementCounter();
+//                 },
+//                 child: const Text(
+//                   'Increment Counter',
+//                   style: TextStyle(fontSize: 20.0),
+//                 ))
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 ///-- Bloc Access --///
 // class MyHomePage extends StatefulWidget {
@@ -157,32 +162,34 @@ class MyHomePage extends StatelessWidget {
 // }
 
 ///-- Bloc to bloc communication using stream subscription and bloc listener --///
-// class MyApp extends StatelessWidget {
-//   const MyApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
-//   @override
-//   Widget build(BuildContext context) {
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider(create: (context) => ColorBloc()),
-//         BlocProvider(create: (context) => CounterBloc()),
-//       ],
-//       child: MaterialApp(
-//         title: 'Cubit to Cubit',
-//         debugShowCheckedModeBanner: false,
-//         theme: ThemeData(primarySwatch: Colors.blue),
-//         home: const MyHomePage(),
-//       ),
-//     );
-//   }
-// }
+  @override
+  Widget build(BuildContext context) {
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => ColorBloc()),
+        BlocProvider(
+            create: (context) =>
+                CounterBloc(colorBloc: context.read<ColorBloc>())),
+      ],
+      child: MaterialApp(
+        title: 'Cubit to Cubit',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const MyHomePage(),
+      ),
+    );
+  }
+}
 
-// class MyHomePage extends StatefulWidget {
-//   const MyHomePage({Key? key}) : super(key: key);
+class MyHomePage extends StatefulWidget {
+  const MyHomePage({Key? key}) : super(key: key);
 
-//   @override
-//   State<MyHomePage> createState() => _MyHomePageState();
-// }
+  @override
+  State<MyHomePage> createState() => _MyHomePageState();
+}
 
 // class _MyHomePageState extends State<MyHomePage> {
 //   int incrementSize = 1;
@@ -246,51 +253,50 @@ class MyHomePage extends StatelessWidget {
 //   }
 // }
 
-
 /// -- Bloc to bloc using stream subscription --///
-// class _MyHomePageState extends State<MyHomePage> {
-//   int incrementSize = 1;
-//   @override
-//   Widget build(BuildContext context) {
-//     return Scaffold(
-//       backgroundColor: context.watch<ColorBloc>().state.color,
-//       appBar: AppBar(title: const Text('Cubit2Cbuit')),
-//       body: Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             ElevatedButton(
-//                 onPressed: () {
-//                   context.read<ColorBloc>().add(ChangedColorEvent());
-//                 },
-//                 child: const Text(
-//                   'Change color',
-//                   style: TextStyle(fontSize: 24.0),
-//                 )),
-//             const SizedBox(
-//               height: 20.0,
-//             ),
-//             Text(
-//               '${context.watch<CounterBloc>().state.counter}',
-//               style: const TextStyle(
-//                   fontSize: 52.0,
-//                   fontWeight: FontWeight.bold,
-//                   color: Colors.white),
-//             ),
-//             ElevatedButton(
-//                 onPressed: () {
-//                   context.read<CounterBloc>().add(ChangedCounterEvent());
-//                 },
-//                 child: const Text(
-//                   'Increment Counter',
-//                   style: TextStyle(fontSize: 24.0),
-//                 ))
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-// }
+class _MyHomePageState extends State<MyHomePage> {
+  int incrementSize = 1;
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.watch<ColorBloc>().state.color,
+      appBar: AppBar(title: const Text('Cubit2Cbuit')),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            ElevatedButton(
+                onPressed: () {
+                  context.read<ColorBloc>().add(ChangedColorEvent());
+                },
+                child: const Text(
+                  'Change color',
+                  style: TextStyle(fontSize: 24.0),
+                )),
+            const SizedBox(
+              height: 20.0,
+            ),
+            Text(
+              '${context.watch<CounterBloc>().state.counter}',
+              style: const TextStyle(
+                  fontSize: 52.0,
+                  fontWeight: FontWeight.bold,
+                  color: Colors.white),
+            ),
+            ElevatedButton(
+                onPressed: () {
+                  context.read<CounterBloc>().add(ChangedCounterEvent());
+                },
+                child: const Text(
+                  'Increment Counter',
+                  style: TextStyle(fontSize: 24.0),
+                ))
+          ],
+        ),
+      ),
+    );
+  }
+}
 
 ///--Cubit to Cubit--//
 // class _MyHomePageState extends State<MyHomePage> {
