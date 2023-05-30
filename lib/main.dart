@@ -1,16 +1,66 @@
-import 'package:bloc_pattern_base/blocs/color/color_bloc.dart';
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
-import 'package:bloc_pattern_base/blocs/observer/app_bloc_observer.dart';
-import 'package:bloc_pattern_base/cubits/counter/counter_cubit.dart';
-import 'package:bloc_pattern_base/show_me_counter.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 void main() {
-  Bloc.observer = AppBlocObserver();
+//  Bloc.observer = AppBlocObserver();  ///Bloc observer implementation
   runApp(const MyApp());
 }
 
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => CounterBloc(),
+      child: MaterialApp(
+        title: 'Event Transformer',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(primarySwatch: Colors.blue),
+        home: const MyHomePage(),
+      ),
+    );
+  }
+}
+
+class MyHomePage extends StatelessWidget {
+  const MyHomePage({Key? key}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Text(
+          '${context.watch<CounterBloc>().state.counter}',
+          style: const TextStyle(fontSize: 54.0),
+        ),
+      ),
+      floatingActionButton: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: () {
+              context.read<CounterBloc>().add(IncrementEvent());
+            },
+            heroTag: 'Increment',
+            child: const Icon(Icons.add),
+          ),
+          const SizedBox(
+            width: 10.0,
+          ),
+          FloatingActionButton(
+            onPressed: () {
+              context.read<CounterBloc>().add(DecrementEvent());
+            },
+            heroTag: 'Decrement',
+            child: const Icon(Icons.remove),
+          )
+        ],
+      ),
+    );
+  }
+}
 /// -- Bloc Access - Anonymous,Named and Generated routes --///
 
 // class MyApp extends StatefulWidget {
@@ -162,34 +212,34 @@ void main() {
 // }
 
 ///-- Bloc to bloc communication using stream subscription and bloc listener --///
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return MultiBlocProvider(
-      providers: [
-        BlocProvider(create: (context) => ColorBloc()),
-        BlocProvider(
-            create: (context) =>
-                CounterBloc(colorBloc: context.read<ColorBloc>())),
-      ],
-      child: MaterialApp(
-        title: 'Cubit to Cubit',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: const MyHomePage(),
-      ),
-    );
-  }
-}
+//   @override
+//   Widget build(BuildContext context) {
+//     return MultiBlocProvider(
+//       providers: [
+//         BlocProvider(create: (context) => ColorBloc()),
+//         BlocProvider(
+//             create: (context) =>
+//                 CounterBloc(colorBloc: context.read<ColorBloc>())),
+//       ],
+//       child: MaterialApp(
+//         title: 'Cubit to Cubit',
+//         debugShowCheckedModeBanner: false,
+//         theme: ThemeData(primarySwatch: Colors.blue),
+//         home: const MyHomePage(),
+//       ),
+//     );
+//   }
+// }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({Key? key}) : super(key: key);
+// class MyHomePage extends StatefulWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
 
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
+//   @override
+//   State<MyHomePage> createState() => _MyHomePageState();
+// }
 
 // class _MyHomePageState extends State<MyHomePage> {
 //   int incrementSize = 1;
@@ -254,49 +304,49 @@ class MyHomePage extends StatefulWidget {
 // }
 
 /// -- Bloc to bloc using stream subscription --///
-class _MyHomePageState extends State<MyHomePage> {
-  int incrementSize = 1;
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: context.watch<ColorBloc>().state.color,
-      appBar: AppBar(title: const Text('Cubit2Cbuit')),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            ElevatedButton(
-                onPressed: () {
-                  context.read<ColorBloc>().add(ChangedColorEvent());
-                },
-                child: const Text(
-                  'Change color',
-                  style: TextStyle(fontSize: 24.0),
-                )),
-            const SizedBox(
-              height: 20.0,
-            ),
-            Text(
-              '${context.watch<CounterBloc>().state.counter}',
-              style: const TextStyle(
-                  fontSize: 52.0,
-                  fontWeight: FontWeight.bold,
-                  color: Colors.white),
-            ),
-            ElevatedButton(
-                onPressed: () {
-                  context.read<CounterBloc>().add(ChangedCounterEvent());
-                },
-                child: const Text(
-                  'Increment Counter',
-                  style: TextStyle(fontSize: 24.0),
-                ))
-          ],
-        ),
-      ),
-    );
-  }
-}
+// class _MyHomePageState extends State<MyHomePage> {
+//   int incrementSize = 1;
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       backgroundColor: context.watch<ColorBloc>().state.color,
+//       appBar: AppBar(title: const Text('Cubit2Cbuit')),
+//       body: Center(
+//         child: Column(
+//           mainAxisAlignment: MainAxisAlignment.center,
+//           children: [
+//             ElevatedButton(
+//                 onPressed: () {
+//                   context.read<ColorBloc>().add(ChangedColorEvent());
+//                 },
+//                 child: const Text(
+//                   'Change color',
+//                   style: TextStyle(fontSize: 24.0),
+//                 )),
+//             const SizedBox(
+//               height: 20.0,
+//             ),
+//             Text(
+//               '${context.watch<CounterBloc>().state.counter}',
+//               style: const TextStyle(
+//                   fontSize: 52.0,
+//                   fontWeight: FontWeight.bold,
+//                   color: Colors.white),
+//             ),
+//             ElevatedButton(
+//                 onPressed: () {
+//                   context.read<CounterBloc>().add(ChangedCounterEvent());
+//                 },
+//                 child: const Text(
+//                   'Increment Counter',
+//                   style: TextStyle(fontSize: 24.0),
+//                 ))
+//           ],
+//         ),
+//       ),
+//     );
+//   }
+// }
 
 ///--Cubit to Cubit--//
 // class _MyHomePageState extends State<MyHomePage> {
