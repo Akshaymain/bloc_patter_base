@@ -1,9 +1,19 @@
 import 'package:bloc_pattern_base/blocs/counter/counter_bloc.dart';
+import 'package:bloc_pattern_base/blocs/theme/theme_bloc.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:hydrated_bloc/hydrated_bloc.dart';
+import 'package:path_provider/path_provider.dart';
 
-void main() {
+void main() async {
 //  Bloc.observer = AppBlocObserver();  ///Bloc observer implementation
+
+  WidgetsFlutterBinding.ensureInitialized();
+  HydratedBloc.storage = await HydratedStorage.build(
+      storageDirectory: kIsWeb
+          ? HydratedStorage.webStorageDirectory
+          : await getApplicationDocumentsDirectory());
   runApp(const MyApp());
 }
 
@@ -12,13 +22,22 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => CounterBloc(),
-      child: MaterialApp(
-        title: 'Event Transformer',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(primarySwatch: Colors.blue),
-        home: const MyHomePage(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<CounterBloc>(create: (context) => CounterBloc()),
+        BlocProvider<ThemeBloc>(create: (context) => ThemeBloc())
+      ],
+      child: BlocBuilder<ThemeBloc, ThemeState>(
+        builder: (context, state) {
+          return MaterialApp(
+            title: 'Hydrated Bloc',
+            debugShowCheckedModeBanner: false,
+            theme: state.appTheme == AppTheme.light
+                ? ThemeData.light()
+                : ThemeData.dark(),
+            home: const MyHomePage(),
+          );
+        },
       ),
     );
   }
@@ -31,36 +50,109 @@ class MyHomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Center(
-        child: Text(
-          '${context.watch<CounterBloc>().state.counter}',
-          style: const TextStyle(fontSize: 54.0),
+          child: Text(
+        '${context.watch<CounterBloc>().state.counter}',
+        style: const TextStyle(fontSize: 64.0),
+      )),
+      floatingActionButton:
+          Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        FloatingActionButton(
+          onPressed: () {
+            context.read<ThemeBloc>().add(ToggleThemeEvent());
+          },
+          heroTag: 'SwitchTheme',
+          child: const Icon(Icons.brightness_6),
         ),
-      ),
-      floatingActionButton: Row(
-        mainAxisAlignment: MainAxisAlignment.end,
-        children: [
-          FloatingActionButton(
-            onPressed: () {
-              context.read<CounterBloc>().add(IncrementEvent());
-            },
-            heroTag: 'Increment',
-            child: const Icon(Icons.add),
-          ),
-          const SizedBox(
-            width: 10.0,
-          ),
-          FloatingActionButton(
-            onPressed: () {
-              context.read<CounterBloc>().add(DecrementEvent());
-            },
-            heroTag: 'Decrement',
-            child: const Icon(Icons.remove),
-          )
-        ],
-      ),
+        const SizedBox(
+          width: 5.0,
+        ),
+        FloatingActionButton(
+          onPressed: () {
+            context.read<CounterBloc>().add(IncrementCounterEvent());
+          },
+          heroTag: 'Increment',
+          child: const Icon(Icons.add),
+        ),
+        const SizedBox(
+          width: 5.0,
+        ),
+        FloatingActionButton(
+          onPressed: () {
+            context.read<CounterBloc>().add(DecrementCounterEvent());
+          },
+          heroTag: 'Decrement',
+          child: const Icon(Icons.remove),
+        ),
+        const SizedBox(
+          width: 5.0,
+        ),
+        FloatingActionButton(
+          onPressed: () {
+            HydratedBloc.storage.clear();
+          },
+          heroTag: 'ClearStorage',
+          child: const Icon(Icons.delete_forever),
+        )
+      ]),
     );
   }
 }
+
+/// -- Event Transformer implementation -- ///
+// class MyApp extends StatelessWidget {
+//   const MyApp({super.key});
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return BlocProvider(
+//       create: (context) => CounterBloc(),
+//       child: MaterialApp(
+//         title: 'Event Transformer',
+//         debugShowCheckedModeBanner: false,
+//         theme: ThemeData(primarySwatch: Colors.blue),
+//         home: const MyHomePage(),
+//       ),
+//     );
+//   }
+// }
+
+// class MyHomePage extends StatelessWidget {
+//   const MyHomePage({Key? key}) : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return Scaffold(
+//       body: Center(
+//         child: Text(
+//           '${context.watch<CounterBloc>().state.counter}',
+//           style: const TextStyle(fontSize: 54.0),
+//         ),
+//       ),
+//       floatingActionButton: Row(
+//         mainAxisAlignment: MainAxisAlignment.end,
+//         children: [
+//           FloatingActionButton(
+//             onPressed: () {
+//               context.read<CounterBloc>().add(IncrementEvent());
+//             },
+//             heroTag: 'Increment',
+//             child: const Icon(Icons.add),
+//           ),
+//           const SizedBox(
+//             width: 10.0,
+//           ),
+//           FloatingActionButton(
+//             onPressed: () {
+//               context.read<CounterBloc>().add(DecrementEvent());
+//             },
+//             heroTag: 'Decrement',
+//             child: const Icon(Icons.remove),
+//           )
+//         ],
+//       ),
+//     );
+//   }
+// }
 /// -- Bloc Access - Anonymous,Named and Generated routes --///
 
 // class MyApp extends StatefulWidget {
@@ -409,7 +501,6 @@ class MyHomePage extends StatelessWidget {
 //   }
 // }
 
-
 // -- Theme feature using bloc and cubit --//
 // class MyApp extends StatelessWidget {
 //   const MyApp({super.key});
@@ -577,7 +668,6 @@ class MyHomePage extends StatelessWidget {
 //     );
 //   }
 // }
-
 
 //////-- Cubit implementation --//////
 
